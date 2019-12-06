@@ -16,9 +16,8 @@ struct TAluno {
 FILE *fAluno;
 
 void delay(float time){
-     float t; 
-     while (t< time) t+= 0.01;
-     
+     float t;
+     while(t < time) t+=0.01;
 }
 
 void abreArquivo(){
@@ -44,10 +43,10 @@ int buscaMatricula(int matr){
     fpos_t posicao = -1;
     int achou = 0;
     rewind(fAluno);
-    fgetpos(fAluno, &posicao);
+    fgetpos(fAluno, &posicao);  
     fread(&aluno, sizeof(aluno), 1, fAluno);
     while ( (!feof(fAluno)) && (achou == 0) ){
-        if (aluno.matricula == matr)
+        if (aluno.matricula == matr && aluno.valido == 1)
             achou = 1;
         else {     
           fgetpos(fAluno, &posicao);
@@ -75,6 +74,7 @@ void incluir(){
        printf("\nNome ............: %s", rAluno.nome);
        printf("\nCurso ...........: %s", rAluno.curso);
        printf("\nC.R. ............: %.2f", rAluno.cr);
+       rAluno.valido = 1;
        printf("\n\nMatricula ja cadastrada. Tecle algo para continuar...");
        getch();
      } 
@@ -147,6 +147,11 @@ void listar(){
      getch();     
 }
 
+// void excluir(){
+     
+    
+
+
 int main(void){
      char opcao;
      abreArquivo();
@@ -155,7 +160,7 @@ int main(void){
          printf("* * * REGISTRO ESCOLAR * * * \n\n");
          printf("\n1 - Incluir alunos");
          printf("\n2 - Alterar alunos");
-         printf("\n3 - Excluir alunos");
+         printf("\n3 - Excluir aluno");
          printf("\n4 - Listar alunos cadastrados");
          printf("\n0 - Encerrar programa");
          printf("\n\n\nOpcao: ");
@@ -163,7 +168,7 @@ int main(void){
          switch(opcao){
              case '1': incluir(); break;
              case '2': alterar(); break;
-             //case '3': exluir(); break;
+        //     case '3': excluir(); break;
              case '4': listar(); break;
              case '0': printf("\n\n\nFim de programa"); break;
          default:
