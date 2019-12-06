@@ -47,7 +47,7 @@ int buscaMatricula(int matr){
     fgetpos(fAluno, &posicao);
     fread(&aluno, sizeof(aluno), 1, fAluno);
     while ( (!feof(fAluno)) && (achou == 0) ){
-        if (aluno.matricula == matr)
+        if (aluno.matricula == matr && aluno.valido ==1)
             achou = 1;
         else {     
           fgetpos(fAluno, &posicao);
@@ -83,6 +83,7 @@ void incluir(){
        fflush(stdin);
        printf("\nCurso ...........: "); gets(rAluno.curso);
        printf("\nC.R. ............: "); scanf("%f", &rAluno.cr);
+       rAluno.valido = 1;
        
        grava(rAluno, SEEK_END);
      }
@@ -141,7 +142,7 @@ void listar(){
      if ( !feof(fAluno) )
        fread(&aluno, sizeof(aluno), 1, fAluno);  
      while( !feof(fAluno) ){
-         printf("%d\t %s\t %s\t %.2f\n", aluno.matricula, aluno.nome, aluno.curso, aluno.cr);      
+         printf("%d\t %s\t %s\t %.2f \n", aluno.matricula, aluno.nome, aluno.curso, aluno.cr);     
          fread(&aluno, sizeof(aluno), 1, fAluno);  
      }
      getch();     
