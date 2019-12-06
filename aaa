@@ -9,7 +9,7 @@ struct TAluno {
    int matricula;
    char nome[51];
    char curso[21];
-   float cr;
+   char cr[5];
    int valido;
 }; 
 
@@ -34,9 +34,15 @@ void fechaArquivo(){
      fclose(fAluno);
 }
 
-void grava(struct TAluno aluno, fpos_t pos){
-     fseek(fAluno, 0, pos);
-     fwrite(&aluno, sizeof(aluno), 1, fAluno);
+void gravaNovo(struct TAluno aluno){
+     fseek(fAluno, 0, SEEK_END);
+     fwrite(&aluno, sizeof(aluno), 1, fAluno);  
+}
+
+
+void gravaAltera(struct TAluno aluno, fpos_t pos){
+     fseek(fAluno, pos, 0);
+     fwrite(&aluno, sizeof(aluno), 1, fAluno);  
 }
 
 int buscaMatricula(int matr){
@@ -47,7 +53,7 @@ int buscaMatricula(int matr){
     fgetpos(fAluno, &posicao);
     fread(&aluno, sizeof(aluno), 1, fAluno);
     while ( (!feof(fAluno)) && (achou == 0) ){
-        if (aluno.matricula == matr)
+        if (aluno.matricula == matr && aluno.valido ==1)
             achou = 1;
         else {     
           fgetpos(fAluno, &posicao);
@@ -74,7 +80,7 @@ void incluir(){
        fread(&rAluno, sizeof(rAluno), 1, fAluno);         
        printf("\nNome ............: %s", rAluno.nome);
        printf("\nCurso ...........: %s", rAluno.curso);
-       printf("\nC.R. ............: %.2f", rAluno.cr);
+       printf("\nC.R. ............: %s", rAluno.cr);
        printf("\n\nMatricula ja cadastrada. Tecle algo para continuar...");
        getch();
      } 
@@ -82,9 +88,11 @@ void incluir(){
        printf("\nNome ............: "); gets(rAluno.nome);
        fflush(stdin);
        printf("\nCurso ...........: "); gets(rAluno.curso);
-       printf("\nC.R. ............: "); scanf("%f", &rAluno.cr);
+       fflush(stdin);
+       printf("\nC.R. ............: "); gets(rAluno.cr);
+       rAluno.valido = 1;
        
-       grava(rAluno, SEEK_END);
+       gravaNovo(rAluno);
      }
 }
 
@@ -107,14 +115,14 @@ void alterar(){
        fread(&rAluno, sizeof(rAluno), 1, fAluno);         
        printf("\nNome ............: %s", rAluno.nome);
        printf("\nCurso ...........: %s", rAluno.curso);
-       printf("\nC.R. ............: %.2f", rAluno.cr);
+       printf("\nC.R. ............: %s", rAluno.cr);
 
 
        printf("\n\nDigite os novos valores...\n");
        printf("\nNome ............: "); gets(rAlteracaoAluno.nome);
        fflush(stdin);
        printf("\nCurso ...........: "); gets(rAlteracaoAluno.curso);
-       printf("\nC.R. ............: "); scanf("%f", &rAlteracaoAluno.cr);
+       printf("\nC.R. ............: "); scanf("%s", &rAlteracaoAluno.cr);
        
        rAlteracaoAluno.matricula = rAluno.matricula;
        if (strcmp(rAlteracaoAluno.nome, "") == 0 )
@@ -126,7 +134,7 @@ void alterar(){
        //if (rAlteracaoAluno.cr == NULL)
        //  rAlteracaoAluno.cr = rAluno.cr;
        
-       grava(rAlteracaoAluno, posicao);
+       gravaAltera(rAlteracaoAluno, posicao);
      }
 }
 
@@ -140,12 +148,42 @@ void listar(){
      rewind(fAluno);
      if ( !feof(fAluno) )
        fread(&aluno, sizeof(aluno), 1, fAluno);  
-     while( !feof(fAluno) ){
-         printf("%d\t %s\t %s\t %.2f\n", aluno.matricula, aluno.nome, aluno.curso, aluno.cr);      
+     while( !feof(fAluno)){
+         if(1){  
+         printf("%d\t %s\t %s\t %s\t %d\n", aluno.matricula, aluno.nome, aluno.curso, aluno.cr, aluno.valido);     
          fread(&aluno, sizeof(aluno), 1, fAluno);  
-     }
-     getch();     
+         }         
 }
+getch();
+}
+
+
+void excluir(){
+    int matr;
+    fpos_t posicao;
+     fflush(stdin);
+     printf("\nMatricula .......: "); scanf("%d", &matr);
+     fflush(stdin);
+     posicao = buscaMatricula(matr);
+     struct TAluno rAluno;
+     
+    
+     
+     
+     if(posicao != -1){
+                fsetpos(fAluno, &posicao);
+                fread(&rAluno, sizeof(rAluno), 1, fAluno); 
+                rAluno.valido = 0;
+                gravaAltera(rAluno, posicao);
+                printf("Matricula excluida com sucesso");
+                getch();
+                }
+     if(posicao == -1){
+                printf("Matrícula não encontrada");
+                }
+}
+
+
 
 int main(void){
      char opcao;
@@ -163,7 +201,7 @@ int main(void){
          switch(opcao){
              case '1': incluir(); break;
              case '2': alterar(); break;
-             //case '3': exluir(); break;
+             case '3': excluir(); break;
              case '4': listar(); break;
              case '0': printf("\n\n\nFim de programa"); break;
          default:
